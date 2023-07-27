@@ -1,4 +1,10 @@
 package com.techelevator;
 
-public class Accounting {
+public class Accounting extends PurchaseMenu
+{
+
+
+
+
+
 }
