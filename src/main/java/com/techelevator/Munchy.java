@@ -1,4 +1,6 @@
 package com.techelevator;
 
-public class Munchy {
+public class Munchy
+{
+
 }
