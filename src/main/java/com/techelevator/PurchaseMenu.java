@@ -4,22 +4,18 @@ import java.math.BigDecimal;
 
 public class PurchaseMenu extends VendingMachineCLI
 {
+    private Transaction currentTransaction = null;
     private static final String PURCHASE_MENU_OPTION_FEED_MONEY = "Feed Money";
     private static final String PURCHASE_MENU_OPTION_SELECT_PRODUCT = "Select Product";
     private static final String PURCHASE_MENU_OPTION_FINISH_TRANSACTION = "Finish Transaction";
     private static final String[] PURCHASE_MENU_OPTIONS = { PURCHASE_MENU_OPTION_FEED_MONEY, PURCHASE_MENU_OPTION_SELECT_PRODUCT, PURCHASE_MENU_OPTION_FINISH_TRANSACTION };
-    private BigDecimal currentMoney = BigDecimal.valueOf(0.00);
-
-    public PurchaseMenu()
-    {
-
-    }
+    private BigDecimal currentBalance = BigDecimal.valueOf(0.00);
 
     public void runPurchaseMenu(Inventory inventory)
     {
         while (true)
         {
-            System.out.println("Current Money Provided: $" + currentMoney);
+            System.out.println("Current Money Provided: $" + currentBalance);
             System.out.println();
             String choice = getPurchaseMenuChoice();
 
@@ -54,11 +50,9 @@ public class PurchaseMenu extends VendingMachineCLI
     {
         System.out.println("How much money would you like to add to your balance?");
         String amountToAddInput = userInput.nextLine();
-        double moneyAdded = Double.parseDouble(amountToAddInput); //Convert input String to double
-        BigDecimal amountToAdd = BigDecimal.valueOf(moneyAdded);  //Convert double to BigDecimal
-
-        //Adds given money to current amount
-        currentMoney = currentMoney.add(amountToAdd);
+        int amountToAdd = Integer.parseInt(amountToAddInput);
+        BigDecimal amountToAddDecimal = BigDecimal.valueOf(amountToAdd);
+        currentBalance = currentBalance.add(amountToAddDecimal);
     }
 
     private String getPurchaseMenuChoice()
@@ -89,10 +83,10 @@ public class PurchaseMenu extends VendingMachineCLI
             Product currentProduct = inventory.products.get(itemCodeInput);
             if (currentProduct.getStock() > 0)
             {
-                currentMoney = currentMoney.subtract(currentProduct.getPrice());
+                currentBalance = currentBalance.subtract(currentProduct.getPrice());
                 System.out.println("Item: " + currentProduct.getName()
                         + "Price: $" + currentProduct.getPrice()
-                        + "Money Remaining: $" + currentMoney);
+                        + " Money Remaining: $" + currentBalance);
 
                 System.out.println(currentProduct.dispensingMessage());
 
