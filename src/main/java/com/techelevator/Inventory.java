@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class Inventory
 {
-    List<Product> products = new ArrayList<>();
+    Map<String, Product> products = new HashMap<>();
     private static final int STARTING_STOCK = 5;
 
     public Inventory()
@@ -27,7 +27,7 @@ public class Inventory
                 BigDecimal price = BigDecimal.valueOf(Double.parseDouble(item[2]));
                 String productType = item[3];
                 Product currentProduct = new Product(slotLocation, productName, price, productType,STARTING_STOCK);
-                products.add(currentProduct);
+                products.put(slotLocation, currentProduct);
             }
             reader.close();
         }
@@ -35,24 +35,26 @@ public class Inventory
         {
             System.out.println("File not found.");
         }
-
-
-
-
-
-
-
-
-
-
-
     }
 
 
+    public void displayInventory()
+    {
+        for (Map.Entry<String, Product> currentProduct : products.entrySet())
+        {
+            System.out.print("Slot: " + currentProduct.getValue().getSlotIdentifier()
+                    + " Item: " + currentProduct.getValue().getName()
+                    + " Price: $" + currentProduct.getValue().getPrice()
+                    + " Quantity Remaining: ");
 
-
-
-
-
-
+            if (currentProduct.getValue().getStock() == 0)
+            {
+                System.out.println("SOLD OUT");
+            }
+            else
+            {
+                System.out.println(currentProduct.getValue().getStock());
+            }
+        }
+    }
 }

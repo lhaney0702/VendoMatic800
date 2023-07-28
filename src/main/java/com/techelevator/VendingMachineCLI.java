@@ -22,7 +22,8 @@ public class VendingMachineCLI
 
 	public void run()
 	{
-		Inventory inventory = new Inventory();
+		Inventory inventory = new Inventory();  //Contains products info
+		PurchaseMenu purchaseMenu = new PurchaseMenu();  //Contains purchase menu info
 
 		while (true)
 		{
@@ -30,29 +31,14 @@ public class VendingMachineCLI
 
 			if (choice.equals(MAIN_MENU_OPTION_DISPLAY_ITEMS))
 			{
-
-				for (Product currentProduct : inventory.products)
-				{
-					System.out.print("Slot: " + currentProduct.getSlotIdentifier()
-							+ "Item: " + currentProduct.getName()
-							+ "Price: $" + currentProduct.getPrice()
-							+ "Quantity Remaining: ");
-
-					if (currentProduct.getStock() == 0)
-					{
-						System.out.println("SOLD OUT");
-					}
-					else
-					{
-						System.out.println(currentProduct.getStock());
-					}
-				}
+				//Display items in vending machine
+				inventory.displayInventory();
 
 			}
 			else if (choice.equals(MAIN_MENU_OPTION_PURCHASE))
 			{
-
-				// do purchase
+				//Runs through purchase menu
+				purchaseMenu.runPurchaseMenu(inventory);
 
 			}
 			else if (choice.equals(MAIN_MENU_OPTION_EXIT))
@@ -70,15 +56,18 @@ public class VendingMachineCLI
 	{
 		System.out.println("Welcome, please select the number that corresponds with your desired action: ");
 
+		//Print out options in menu array
 		for (int i = 0; i < MAIN_MENU_OPTIONS.length; i++)
 		{
 			System.out.println("(" + (i + 1) + ") " + MAIN_MENU_OPTIONS[i]);
 		}
 
+		//What user puts in converted to int
 		String choice = userInput.nextLine();
 		int choiceNumber = Integer.parseInt(choice);
 
-		if (choiceNumber < MAIN_MENU_OPTIONS.length)
+		//Verify choice number is within array bounds
+		if (choiceNumber > MAIN_MENU_OPTIONS.length)
 		{
 			return "";
 		}
