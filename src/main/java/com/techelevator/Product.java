@@ -1,12 +1,9 @@
 package com.techelevator;
-
-
 import java.math.BigDecimal;
 
 public class Product
 {
     private String name;
-    private String sound;
     private String slotIdentifier;
     private BigDecimal price;
     private String productType;
@@ -49,11 +46,6 @@ public class Product
     public void setStock(int stock)
     {
         this.stock = stock;
-    }
-
-    public String getSound()
-    {
-        return sound;
     }
 
     public String dispensingMessage()

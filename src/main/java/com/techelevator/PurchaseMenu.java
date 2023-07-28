@@ -1,5 +1,4 @@
 package com.techelevator;
-
 import java.math.BigDecimal;
 
 public class PurchaseMenu extends VendingMachineCLI
@@ -9,6 +8,7 @@ public class PurchaseMenu extends VendingMachineCLI
     private static final String PURCHASE_MENU_OPTION_FINISH_TRANSACTION = "Finish Transaction";
     private static final String[] PURCHASE_MENU_OPTIONS = { PURCHASE_MENU_OPTION_FEED_MONEY, PURCHASE_MENU_OPTION_SELECT_PRODUCT, PURCHASE_MENU_OPTION_FINISH_TRANSACTION };
     private BigDecimal currentMoney = BigDecimal.valueOf(0.00);
+    private int numberOfItemsSold = 0;
 
     public PurchaseMenu()
     {
@@ -19,7 +19,8 @@ public class PurchaseMenu extends VendingMachineCLI
     {
         while (true)
         {
-            System.out.println("Current Money Provided: $" + currentMoney);
+            System.out.print("Current Money Provided: $");
+            System.out.printf("%.2f\n", currentMoney);
             System.out.println();
             String choice = getPurchaseMenuChoice();
 
@@ -89,10 +90,13 @@ public class PurchaseMenu extends VendingMachineCLI
             Product currentProduct = inventory.products.get(itemCodeInput);
             if (currentProduct.getStock() > 0)
             {
-                currentMoney = currentMoney.subtract(currentProduct.getPrice());
+                numberOfItemsSold++;
+                BigDecimal price = getProductPrice(currentProduct);
+
+                currentMoney = currentMoney.subtract(price);
                 System.out.println("Item: " + currentProduct.getName()
-                        + "Price: $" + currentProduct.getPrice()
-                        + "Money Remaining: $" + currentMoney);
+                        + "\tPrice: $" + price
+                        + "\tMoney Remaining: $" + currentMoney);
 
                 System.out.println(currentProduct.dispensingMessage());
 
@@ -109,15 +113,57 @@ public class PurchaseMenu extends VendingMachineCLI
             System.out.println("Invalid product code. Please try again.");
         }
 
-        //TODO: Add August discount
+    }
+
+    private BigDecimal getProductPrice(Product product)
+    {
+        BigDecimal price = product.getPrice();
+        if (numberOfItemsSold % 2 == 0)
+        {
+            price = price.subtract(BigDecimal.valueOf(1.00));
+        }
+
+        return price;
     }
 
     private void finishingTransaction()
     {
         //Return change
-
+        int[] coins = calculateChange(currentMoney);
+        System.out.println("Change Returned: ");
+        System.out.println("Quarters: " + coins[0]);
+        System.out.println("Dimes: " + coins[1]);
+        System.out.println("Nickels: " + coins[2]);
+        System.out.println();
         
         //Update current balance to 0
+        currentMoney = BigDecimal.valueOf(0.00);
 
+        //Update number of items sold to 0
+        numberOfItemsSold = 0;
+    }
+
+    private int[] calculateChange(BigDecimal amount)
+    {
+        int[] coins = new int[3]; //Index 0 for quarters, 1 for dimes, 2 for nickels
+        BigDecimal quarterValue = new BigDecimal("0.25");
+        BigDecimal dimeValue = new BigDecimal("0.10");
+        BigDecimal nickelValue = new BigDecimal("0.05");
+
+        //Convert the BigDecimal amount to the smallest unit (cents)
+        BigDecimal remainingCents = BigDecimal.valueOf(amount.doubleValue());
+
+        //Calculate the number of quarters
+        coins[0] = remainingCents.divideToIntegralValue(quarterValue).intValue();
+        remainingCents = remainingCents.subtract(quarterValue.multiply(new BigDecimal(coins[0])));
+
+        //Calculate the number of dimes
+        coins[1] = remainingCents.divideToIntegralValue(dimeValue).intValue();
+        remainingCents = remainingCents.subtract(dimeValue.multiply(new BigDecimal(coins[1])));
+
+        //Calculate the number of nickels
+        coins[2] = remainingCents.divideToIntegralValue(nickelValue).intValue();
+
+        return coins;
     }
 }
