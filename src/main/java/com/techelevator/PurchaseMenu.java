@@ -3,27 +3,30 @@ import java.math.BigDecimal;
 
 public class PurchaseMenu extends VendingMachineCLI
 {
-    private Transaction currentTransaction = null;
     private static final String PURCHASE_MENU_OPTION_FEED_MONEY = "Feed Money";
     private static final String PURCHASE_MENU_OPTION_SELECT_PRODUCT = "Select Product";
     private static final String PURCHASE_MENU_OPTION_FINISH_TRANSACTION = "Finish Transaction";
     private static final String[] PURCHASE_MENU_OPTIONS = { PURCHASE_MENU_OPTION_FEED_MONEY, PURCHASE_MENU_OPTION_SELECT_PRODUCT, PURCHASE_MENU_OPTION_FINISH_TRANSACTION };
-
-    private BigDecimal currentBalance = BigDecimal.valueOf(0.00);
-
     private BigDecimal currentMoney = BigDecimal.valueOf(0.00);
     private int numberOfItemsSold = 0;
+    private Transaction transactionLog = new Transaction();
+
+    public PurchaseMenu()
+    {
+
+    }
+
+    public BigDecimal getCurrentMoney()
+    {
+        return currentMoney;
+    }
 
     public void runPurchaseMenu(Inventory inventory)
     {
         while (true)
         {
-
-            System.out.println("Current Money Provided: $" + currentBalance);
-
             System.out.print("Current Money Provided: $");
             System.out.printf("%.2f\n", currentMoney);
-
             System.out.println();
             String choice = getPurchaseMenuChoice();
 
@@ -58,9 +61,18 @@ public class PurchaseMenu extends VendingMachineCLI
     {
         System.out.println("How much money would you like to add to your balance?");
         String amountToAddInput = userInput.nextLine();
-        int amountToAdd = Integer.parseInt(amountToAddInput);
-        BigDecimal amountToAddDecimal = BigDecimal.valueOf(amountToAdd);
-        currentBalance = currentBalance.add(amountToAddDecimal);
+        double moneyAdded = Double.parseDouble(amountToAddInput); //Convert input String to double
+        BigDecimal amountToAdd = BigDecimal.valueOf(moneyAdded);  //Convert double to BigDecimal
+
+        feedMoney(amountToAdd);
+    }
+
+    public void feedMoney(BigDecimal amountToAdd)
+    {
+        //Adds given money to current amount
+        currentMoney = currentMoney.add(amountToAdd);
+        transactionLog.setBalance(currentMoney);
+        transactionLog.deposit(amountToAdd);
     }
 
     private String getPurchaseMenuChoice()
@@ -84,21 +96,19 @@ public class PurchaseMenu extends VendingMachineCLI
         return PURCHASE_MENU_OPTIONS[choiceNumber - 1];
     }
 
-    private void dispensingAnItem(String itemCodeInput, Inventory inventory)
+    public void dispensingAnItem(String itemCodeInput, Inventory inventory)
     {
         if (inventory.products.containsKey(itemCodeInput))
         {
             Product currentProduct = inventory.products.get(itemCodeInput);
             if (currentProduct.getStock() > 0)
             {
-                currentBalance = currentBalance.subtract(currentProduct.getPrice());
-                System.out.println("Item: " + currentProduct.getName()
-                        + "Price: $" + currentProduct.getPrice()
-                        + " Money Remaining: $" + currentBalance);
                 numberOfItemsSold++;
                 BigDecimal price = getProductPrice(currentProduct);
 
                 currentMoney = currentMoney.subtract(price);
+                transactionLog.setBalance(currentMoney);
+                transactionLog.purchase(currentProduct, price);
                 System.out.println("Item: " + currentProduct.getName()
                         + "\tPrice: $" + price
                         + "\tMoney Remaining: $" + currentMoney);
@@ -120,7 +130,7 @@ public class PurchaseMenu extends VendingMachineCLI
 
     }
 
-    private BigDecimal getProductPrice(Product product)
+    public BigDecimal getProductPrice(Product product)
     {
         BigDecimal price = product.getPrice();
         if (numberOfItemsSold % 2 == 0)
@@ -131,7 +141,7 @@ public class PurchaseMenu extends VendingMachineCLI
         return price;
     }
 
-    private void finishingTransaction()
+    public void finishingTransaction()
     {
         //Return change
         int[] coins = calculateChange(currentMoney);
@@ -140,9 +150,12 @@ public class PurchaseMenu extends VendingMachineCLI
         System.out.println("Dimes: " + coins[1]);
         System.out.println("Nickels: " + coins[2]);
         System.out.println();
-        
+
         //Update current balance to 0
+        BigDecimal originalBalance = BigDecimal.valueOf(currentMoney.doubleValue());
         currentMoney = BigDecimal.valueOf(0.00);
+        transactionLog.setBalance(currentMoney);
+        transactionLog.withdraw(originalBalance);
 
         //Update number of items sold to 0
         numberOfItemsSold = 0;

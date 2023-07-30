@@ -19,6 +19,17 @@ public class Inventory
             while ((currentLine = reader.readLine()) != null)
             {
                 String[] item = currentLine.split(",");
+                //Make sure line has appropriate amount of items
+                if (item.length != 4)
+                {
+                    continue;
+                }
+                //Make sure price is numeric
+                if (!isNumeric(item[2]))
+                {
+                    continue;
+                }
+
                 String slotLocation = item[0];
                 String productName = item[1];
                 BigDecimal price = BigDecimal.valueOf(Double.parseDouble(item[2]));
@@ -51,6 +62,20 @@ public class Inventory
             {
                 System.out.println(currentProduct.getValue().getStock());
             }
+        }
+        System.out.println();
+    }
+
+    private boolean isNumeric(String value)
+    {
+        try
+        {
+            double number = Double.parseDouble(value);
+            return true;
+        }
+        catch (Exception e)
+        {
+            return false;
         }
     }
 }
